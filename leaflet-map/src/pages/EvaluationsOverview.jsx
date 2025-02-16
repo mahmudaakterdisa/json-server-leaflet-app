@@ -33,7 +33,11 @@ const EvaluationsOverview = () => {
             <Helmet>
                 <title>{`RE -> Evaluation`}</title>
             </Helmet>
-            <h2 className="text-4xl font-bold my-8 text-center">Evaluations Overview</h2>
+            <h2 className="text-4xl font-bold my-8 flex justify-center">Evaluations Overview<img
+                src="https://i.ibb.co/VYNZG7Kw/icons8-scorecard.gif"
+                alt="Overview GIF"
+                className="w-12 h-12 ml-3"
+            /></h2>
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse border border-gray-300">
                     <thead className="bg-gray-200">

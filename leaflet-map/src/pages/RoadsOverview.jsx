@@ -30,7 +30,11 @@ const RoadsOverview = () => {
             <Helmet>
                 <title>{`RE -> Road Overview`}</title>
             </Helmet>
-            <h2 className="text-4xl font-bold my-8 text-center">Roads Overview</h2>
+            <h2 className="text-4xl font-bold my-8 flex justify-center">Roads Overview<img
+                src="https://i.ibb.co/btHX7jK/icons8-overview.gif"
+                alt="Overview GIF"
+                className="w-12 h-12 ml-3"
+            /></h2>
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse border border-gray-300">
                     <thead className="bg-gray-200">

@@ -23,7 +23,11 @@ const TodosOverview = () => {
             <Helmet>
                 <title>{`RE -> Todo`}</title>
             </Helmet>
-            <h2 className="text-4xl font-bold my-8 text-center">Todos Overview</h2>
+            <h2 className="text-4xl font-bold my-8 flex justify-center">Todos Overview<img
+                src="https://i.ibb.co/Xx6xbmpD/icons8-to-do.gif"
+                alt="Overview GIF"
+                className="w-12 h-12 ml-3"
+            /></h2>
 
             {todos.length === 0 ? (
                 <p className="text-gray-500">No TODOs available.</p>
