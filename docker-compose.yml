@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  frontend:
+    container_name: leaflet-frontend
+    build: ./leaflet-map
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  backend:
+    container_name: json-server
+    build: ./json-server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./json-server/db.json:/app/db.json
