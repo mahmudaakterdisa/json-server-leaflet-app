@@ -1,5 +1,73 @@
+import { useState, useEffect } from "react";
+import api from "../api/api";
+
 const TodosOverview = () => {
-    return <h2 className="p-4 text-lg">Todos Overview Page - Coming Soon!</h2>;
+    const [todos, setTodos] = useState([]);
+
+    // Fetch all TODOs from the API
+    const fetchTodos = async () => {
+        try {
+            const response = await api.get("/todos");
+            setTodos(response.data);
+        } catch (error) {
+            console.error("Error fetching TODOs:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchTodos();
+    }, []);
+
+    // Function to get status color
+    const getStatusColor = (status) => {
+        switch (status) {
+            case "pending":
+                return "bg-yellow-500";
+            case "in_progress":
+                return "bg-blue-500";
+            case "completed":
+                return "bg-green-500";
+            default:
+                return "bg-gray-500";
+        }
+    };
+
+    return (
+        <div className="p-4 mx-14">
+            <h2 className="text-4xl font-bold my-8 text-center">Todos Overview</h2>
+
+            {todos.length === 0 ? (
+                <p className="text-gray-500">No TODOs available.</p>
+            ) : (
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr className="bg-gray-200 text-left">
+                                <th className="border border-gray-300 px-4 py-2">Title</th>
+                                <th className="border border-gray-300 px-4 py-2">Description</th>
+                                <th className="border border-gray-300 px-4 py-2">Status</th>
+                                <th className="border border-gray-300 px-4 py-2">Author</th>
+                                <th className="border border-gray-300 px-4 py-2">Road ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {todos.map((todo) => (
+                                <tr key={todo.id} className="hover:bg-gray-100">
+                                    <td className="border border-gray-300 px-4 py-2">{todo.title}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{todo.description}</td>
+                                    <td className={`border border-gray-300 px-4 py-2 text-white ${getStatusColor(todo.status)}`}>
+                                        {todo.status.replace("_", " ").toUpperCase()}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-2">{todo.author}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{todo.road_fid}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default TodosOverview;

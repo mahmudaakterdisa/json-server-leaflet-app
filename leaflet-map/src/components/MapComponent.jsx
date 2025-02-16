@@ -56,7 +56,7 @@ const calculateAverages = (data) => {
 };
 
 // Custom Component to handle dynamic map updates
-const RoadsLayer = ({ data, selectedEvaluation, selectedSubEvaluation }) => {
+const RoadsLayer = ({ data, selectedEvaluation, selectedSubEvaluation, setSelectedRoad, setIsModalOpen }) => {
     const map = useMap();
 
     useEffect(() => {
@@ -109,13 +109,17 @@ const RoadsLayer = ({ data, selectedEvaluation, selectedSubEvaluation }) => {
                     mouseout: (e) => {
                         e.target.setStyle({ weight: 5 });
                         layer.closePopup();
+                    },
+                    click: () => {
+                        setSelectedRoad(feature.properties.fid);
+                        setIsModalOpen(true);
                     }
                 });
             }
         });
 
         roadsLayer.addTo(map);
-    }, [data, selectedEvaluation, selectedSubEvaluation, map]);
+    }, [data, selectedEvaluation, selectedSubEvaluation, map, setIsModalOpen, setIsModalOpen]);
 
     return null;
 };
@@ -126,10 +130,44 @@ const MapComponent = () => {
         queryFn: fetchRoads,
     });
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedRoad, setSelectedRoad] = useState(null);
+    const [todoTitle, setTodoTitle] = useState("");
+    const [todoDescription, setTodoDescription] = useState("");
+    const [todoStatus, setTodoStatus] = useState("pending");
+    const [todoAuthor, setTodoAuthor] = useState("");
+
     const [selectedEvaluation, setSelectedEvaluation] = useState("gw");
     const [evaluationOptions, setEvaluationOptions] = useState([]);
     const [selectedSubEvaluation, setSelectedSubEvaluation] = useState("");
     const [subEvaluationOptions, setSubEvaluationOptions] = useState([]);
+
+    const handleSubmitTodo = async () => {
+        if (!selectedRoad) return;
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(todoAuthor)) {
+            alert("Invalid email address. Please enter a valid email.");
+            return;
+        }
+
+        const newTodo = {
+            title: todoTitle,
+            description: todoDescription,
+            status: todoStatus,
+            author: todoAuthor,
+            road_fid: selectedRoad
+        };
+
+        try {
+            await api.post("/todos", newTodo);
+            alert("TODO added successfully!");
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Error adding TODO:", error);
+            alert("Failed to add TODO");
+        }
+    };
 
     useEffect(() => {
         if (data) {
@@ -164,7 +202,9 @@ const MapComponent = () => {
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     {isLoading && <p>Loading roads...</p>}
                     {error && <p className="text-red-600">Error loading roads: {error.message}</p>}
-                    {data && <RoadsLayer data={data} selectedEvaluation={selectedEvaluation} selectedSubEvaluation={selectedSubEvaluation} />}
+                    {data && <RoadsLayer data={data} selectedEvaluation={selectedEvaluation} selectedSubEvaluation={selectedSubEvaluation}
+                        setSelectedRoad={setSelectedRoad}
+                        setIsModalOpen={setIsModalOpen} />}
                 </MapContainer>
                 <div className="fixed top-48 left-4 bg-white p-2 shadow-md rounded-md z-[1000]">
                     <label className="block text-sm font-semibold">Select Evaluation:</label>
@@ -253,6 +293,53 @@ const MapComponent = () => {
                     </BarChart>
                 </ResponsiveContainer>
             </div>
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
+                    <div className="bg-white p-6 rounded-md w-96">
+                        <h3 className="text-lg font-bold mb-2">Add TODO for Road {selectedRoad}</h3>
+                        <input
+                            type="text"
+                            className="w-full border p-2 mb-2"
+                            placeholder="Title"
+                            value={todoTitle}
+                            onChange={(e) => setTodoTitle(e.target.value)}
+                        />
+                        <textarea
+                            className="w-full border p-2 mb-2"
+                            placeholder="Description"
+                            value={todoDescription}
+                            onChange={(e) => setTodoDescription(e.target.value)}
+                        />
+                        <select
+                            className="w-full border p-2 mb-2"
+                            value={todoStatus}
+                            onChange={(e) => setTodoStatus(e.target.value)}
+                        >
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                        <input
+                            type="email"
+                            className="w-full border p-2 mb-2"
+                            placeholder="Author Email"
+                            value={todoAuthor}
+                            onChange={(e) => setTodoAuthor(e.target.value)}
+                            onBlur={(e) => {
+                                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                if (!emailPattern.test(e.target.value)) {
+                                    alert("Please enter a valid email address.");
+                                }
+                            }}
+                        />
+                        <div className="flex justify-end">
+                            <button className="bg-gray-500 text-white px-4 py-2 mr-2 rounded" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                            <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleSubmitTodo}>Add TODO</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };
