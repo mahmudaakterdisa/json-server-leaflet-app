@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import api from "../api/api";
+import { fetchRoads } from "../helpers/utils";
+import { Helmet } from "react-helmet";
 
 const RoadsOverview = () => {
     const [roads, setRoads] = useState([]);
@@ -7,20 +8,18 @@ const RoadsOverview = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchRoads = async () => {
+        const loadRoads = async () => {
             try {
-                const response = await api.get("/roads");
-                console.log(response);
-                setRoads(response.data.features);
+                const roadsData = await fetchRoads();
+                setRoads(roadsData.features);
                 setLoading(false);
             } catch (error) {
-                console.error("Error fetching roads:", error);
+                console.error("Error loading roads:", error);
                 setError("Failed to load roads data.");
                 setLoading(false);
             }
         };
-
-        fetchRoads();
+        loadRoads();
     }, []);
 
     if (loading) return <p className="p-4 text-lg">Loading roads...</p>;
@@ -28,6 +27,9 @@ const RoadsOverview = () => {
 
     return (
         <div className="p-4 mx-14">
+            <Helmet>
+                <title>{`RE -> Road Overview`}</title>
+            </Helmet>
             <h2 className="text-4xl font-bold my-8 text-center">Roads Overview</h2>
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse border border-gray-300">

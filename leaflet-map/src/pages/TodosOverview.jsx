@@ -1,39 +1,28 @@
 import { useState, useEffect } from "react";
-import api from "../api/api";
+import { fetchTodos, getStatusColor } from "../helpers/utils";
+import { Helmet } from "react-helmet";
 
 const TodosOverview = () => {
     const [todos, setTodos] = useState([]);
 
-    // Fetch all TODOs from the API
-    const fetchTodos = async () => {
-        try {
-            const response = await api.get("/todos");
-            setTodos(response.data);
-        } catch (error) {
-            console.error("Error fetching TODOs:", error);
-        }
-    };
 
     useEffect(() => {
-        fetchTodos();
+        const loadTodos = async () => {
+            try {
+                const todosData = await fetchTodos();
+                setTodos(todosData);
+            } catch (error) {
+                console.error("Error loading TODOs:", error);
+            }
+        };
+        loadTodos();
     }, []);
-
-    // Function to get status color
-    const getStatusColor = (status) => {
-        switch (status) {
-            case "pending":
-                return "bg-yellow-500";
-            case "in_progress":
-                return "bg-blue-500";
-            case "completed":
-                return "bg-green-500";
-            default:
-                return "bg-gray-500";
-        }
-    };
 
     return (
         <div className="p-4 mx-14">
+            <Helmet>
+                <title>{`RE -> Todo`}</title>
+            </Helmet>
             <h2 className="text-4xl font-bold my-8 text-center">Todos Overview</h2>
 
             {todos.length === 0 ? (

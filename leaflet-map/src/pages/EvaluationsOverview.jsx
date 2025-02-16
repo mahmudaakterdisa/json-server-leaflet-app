@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import api from "../api/api";
+import { fetchEvaluations } from "../helpers/utils";
+import { Helmet } from "react-helmet";
 
 const EvaluationsOverview = () => {
     const [evaluations, setEvaluations] = useState([]);
@@ -8,36 +9,20 @@ const EvaluationsOverview = () => {
     const [columns, setColumns] = useState(["fid", "name"]);
 
     useEffect(() => {
-        const fetchEvaluations = async () => {
+        const loadEvaluations = async () => {
             try {
-                const response = await api.get("/roads");
-                const roadsData = response.data.features;
-
-                let evalTypes = new Set();
-                roadsData.forEach((road) => {
-                    const grades = road.properties.eemi_grade || {};
-                    Object.keys(grades).forEach((key) => {
-                        if (key !== "sub_type_grades") evalTypes.add(key);
-                    });
-
-                    if (grades.sub_type_grades) {
-                        Object.keys(grades.sub_type_grades).forEach((subKey) => {
-                            evalTypes.add(subKey);
-                        });
-                    }
-                });
-
-                setColumns(["fid", "name", ...Array.from(evalTypes)]);
-                setEvaluations(roadsData);
+                const { evaluations, columns } = await fetchEvaluations();
+                setEvaluations(evaluations);
+                setColumns(columns);
                 setLoading(false);
             } catch (error) {
-                console.error("Error fetching evaluations:", error);
+                console.error("Error loading evaluations:", error);
                 setError("Failed to load evaluations data.");
                 setLoading(false);
             }
         };
 
-        fetchEvaluations();
+        loadEvaluations();
     }, []);
 
     if (loading) return <p className="p-4 text-lg">Loading evaluations...</p>;
@@ -45,6 +30,9 @@ const EvaluationsOverview = () => {
 
     return (
         <div className="p-4 mx-14">
+            <Helmet>
+                <title>{`RE -> Evaluation`}</title>
+            </Helmet>
             <h2 className="text-4xl font-bold my-8 text-center">Evaluations Overview</h2>
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse border border-gray-300">

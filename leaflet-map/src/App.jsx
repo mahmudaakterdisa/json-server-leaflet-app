@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Navbar from "./components/Navbar";
-import MapComponent from "./components/MapComponent";
+import MapComponent from "./components/mapComponent/MapComponent";
 import RoadsOverview from "./pages/RoadsOverview";
 import EvaluationsOverview from "./pages/EvaluationsOverview";
 import TodosOverview from "./pages/TodosOverview";
